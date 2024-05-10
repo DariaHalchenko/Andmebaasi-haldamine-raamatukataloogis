@@ -1,0 +1,23 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.4.33205.214
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{888888A0-9F3D-457C-B088-3A5042F75D52}") = "Andmebaasi haldamine raamatukataloogis", "Andmebaasi haldamine raamatukataloogis.pyproj", "{605BCFA9-7E0D-4B9B-B5F9-18C308AF8476}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{605BCFA9-7E0D-4B9B-B5F9-18C308AF8476}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{605BCFA9-7E0D-4B9B-B5F9-18C308AF8476}.Release|Any CPU.ActiveCfg = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {A136A328-9794-4CD9-88CE-1FCC8FAFC205}
+	EndGlobalSection
+EndGlobal
