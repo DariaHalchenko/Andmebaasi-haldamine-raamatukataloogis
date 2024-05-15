@@ -1,5 +1,5 @@
 ﻿from tkinter import * 
-from tkinter import ttk
+from tkinter import tk
 from sqlite3 import *
 from sqlite3 import Error
 from os import *
