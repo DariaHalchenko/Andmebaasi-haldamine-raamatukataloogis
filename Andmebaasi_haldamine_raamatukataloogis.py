@@ -1,5 +1,5 @@
-﻿from tkinter import * 
-from tkinter import tk
+from tkinter import * 
+from tkinter import Tk 
 from sqlite3 import *
 from sqlite3 import Error
 from os import *
@@ -103,14 +103,16 @@ def create_tables(conn):
     execute_query(conn, create_autorid_table)
     execute_query(conn, create_zanrid_table)
     execute_query(conn, create_raamatud_table)
-    messagebox.showinfo("Tabelid on loodud!")
+    messagebox.showinfo("Tabelid on loodud!") 
+
 
 
 def insert_tables(conn):
     execute_query(conn, insert_autorid)
     execute_query(conn, insert_zanrid)
     execute_query(conn, insert_raamatud)
-    messagebox.showinfo("Tabelid on täidetud!")
+    messagebox.showinfo("Tabelid on täidetud!") 
+    print("Tabelid on täidetud!")
 
 
 filename=path.abspath(__file__)
@@ -139,9 +141,9 @@ def table_autorid(conn):
     try:
         read=execute_read_query(conn, "SELECT * FROM Autorid")
         for row in read:
-            tree.insert("", END, values=row)    
+            tree.insert("", END, values=row)
     except Exception as e:
-        print(f"Viga tabelis autorid: {e}")
+        print("Viga", f"Viga tabelis autorid: {e}")
     tree.pack() 
     aken_autorid.mainloop()
 
@@ -160,7 +162,7 @@ def table_zanr(conn):
         for row in read:
             tree.insert("", END, values=row)    
     except Exception as e:
-        print(f"Viga tabelis zanrid: {e}") 
+        print("Viga", f"Viga tabelis zanrid: {e}") 
     tree.pack()
     aken_zanr.mainloop()
 
@@ -186,7 +188,7 @@ def table_raamatud(conn):
         for row in read:
             tree.insert("", END, values=row)    
     except Exception as e:
-        print(f"Viga raamatu tabelis: {e}") 
+        print("Viga", f"Viga raamatu tabelis: {e}") 
     tree.pack()
     aken_raamatud.mainloop()  
 
@@ -208,7 +210,7 @@ def add_zanr(conn, zanri_nimi):
         conn.commit() 
         messagebox.showinfo("Zanr on lisatud")
     except Exception as e:
-        messagebox.showerror(f"Viga {e}") 
+        messagebox.showerror("Viga", f"Viga {e}") 
 
 def add_autor(conn, autor_nimi ,sünnikuupäev):
     try:
@@ -217,7 +219,7 @@ def add_autor(conn, autor_nimi ,sünnikuupäev):
         conn.commit() 
         messagebox.showinfo("Autor on lisatud")
     except Exception as e:
-        messagebox.showerror(f"Viga {e}")
+        messagebox.showerror("Viga", f"Viga {e}")
 
 
 def delete_raamat(conn, pealkiri):
@@ -227,7 +229,7 @@ def delete_raamat(conn, pealkiri):
         conn.commit()
         messagebox.showinfo("Pealkiri raamatud on kustutatud")
     except Exception as e:
-        messagebox.showerror(f"Viga {e}")
+        messagebox.showerror("Viga", f"Viga {e}")
 
 
 def delete_raamat_autorNimi(conn, autor_nimi):
@@ -237,7 +239,7 @@ def delete_raamat_autorNimi(conn, autor_nimi):
         conn.commit()
         messagebox.showinfo("Autor nimi raamatud on kustutatud")
     except Exception as e:
-        messagebox.showerror(f"Viga {e}")
+        messagebox.showerror("Viga", f"Viga {e}")
 
 
 def add_zanr_aken():
@@ -435,9 +437,9 @@ def dropTable(table_name, conn):
         cursor = conn.cursor()
         cursor.execute(f"DROP TABLE {table_name}")
         conn.commit()
-        messagebox.showinfo(f"Tabel {table_name} on kustutatud!")
+        messagebox.showinfo("Viga", f"Tabel {table_name} on kustutatud!")
     except Exception as e:
-        messagebox.showerror(f"Tekkis väga: {e}")
+        messagebox.showerror("Viga", f"Tekkis väga: {e}")
 
 def drop_table_aken(conn):
     drop_aken = Toplevel()
