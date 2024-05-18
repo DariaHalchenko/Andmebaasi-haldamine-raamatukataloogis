@@ -58,10 +58,10 @@ CREATE TABLE IF NOT EXISTS Raamatud(
 raamat_id INTEGER PRIMARY KEY AUTOINCREMENT,
 pealkiri TEXT NOT NULL,
 väljaandmise_kuupäev DATE  NOT NULL,
-autor_nimi INTEGER,
-zanri_nimi INTEGER,
-FOREIGN KEY (autor_nimi) REFERENCES Autorid (autor_nimi),
-FOREIGN KEY (zanri_nimi) REFERENCES Zanrid (zanri_nimi)
+autor_id INTEGER,
+zanr_id INTEGER,
+FOREIGN KEY (autor_id) REFERENCES Autorid (autor_id),
+FOREIGN KEY (zanr_id) REFERENCES Zanrid (zanr_id)
 )
 """
 
@@ -91,11 +91,11 @@ insert_raamatud="""
 INSERT INTO
 Raamatud(pealkiri, väljaandmise_kuupäev, autor_nimi, zanri_nimi)
 VALUES
-("Scarlet Sails","2024-04-28", "Aleksander Green", "Seikluskirjandus"),
-("Juska","2024-03-08", "Andrei Platonov", "Lugu"),
-("Peata ratsanik","2024-02-15", "Mayne Reid", "Romaanid"),
-("Kapten Bloodi odüsseia","2023-07-23", "Rafael Sabatini", "Fantastiline"),
-("Meister ja Margarita","2024-02-12", "Mihhail Bulgakov", "Seiklusromaan")
+("Scarlet Sails","2024-04-28", 2, 3),
+("Juska","2024-03-08", 1, 1),
+("Peata ratsanik","2024-02-15", 3, 4),
+("Kapten Bloodi odüsseia","2023-07-23", 4, 5),
+("Meister ja Margarita","2024-02-12", 5, 2)
 """
 
 
@@ -103,16 +103,14 @@ def create_tables(conn):
     execute_query(conn, create_autorid_table)
     execute_query(conn, create_zanrid_table)
     execute_query(conn, create_raamatud_table)
-    messagebox.showinfo("Tabelid on loodud!") 
-
+    messagebox.showinfo("Tabelid on loodud!","Tabelid on loodud!")
 
 
 def insert_tables(conn):
     execute_query(conn, insert_autorid)
     execute_query(conn, insert_zanrid)
     execute_query(conn, insert_raamatud)
-    messagebox.showinfo("Tabelid on täidetud!") 
-    print("Tabelid on täidetud!")
+    messagebox.showinfo("Tabelid on täidetud!","Tabelid on täidetud!")
 
 
 filename=path.abspath(__file__)
@@ -141,7 +139,7 @@ def table_autorid(conn):
     try:
         read=execute_read_query(conn, "SELECT * FROM Autorid")
         for row in read:
-            tree.insert("", END, values=row)
+            tree.insert("", END, values=row)    
     except Exception as e:
         print("Viga", f"Viga tabelis autorid: {e}")
     tree.pack() 
@@ -162,7 +160,7 @@ def table_zanr(conn):
         for row in read:
             tree.insert("", END, values=row)    
     except Exception as e:
-        print("Viga", f"Viga tabelis zanrid: {e}") 
+        print("Viga","Viga tabelis zanrid: {e}") 
     tree.pack()
     aken_zanr.mainloop()
 
@@ -170,9 +168,7 @@ def table_zanr(conn):
 def table_raamatud(conn): 
     aken_raamatud = Tk() 
     aken_raamatud.title("Raamatute tabel") 
-    tree =ttk.Treeview(aken_raamatud)
-    tree =ttk.Treeview(aken_raamatud)
-    tree=ttk.Treeview(aken_raamatud, column=("raamat_id", "pealkiri", "väljaandmise_kuupäev", "autor_nimi", "zanri_nimi"), show="headings")
+    tree = ttk.Treeview(aken_raamatud, column=("raamat_id", "pealkiri", "väljaandmise_kuupäev", "autor_nimi", "zanri_nimi"), show="headings")
     tree.column("raamat_id", anchor=CENTER)
     tree.heading("raamat_id", text="raamat_id")
     tree.column("pealkiri", anchor=CENTER)
@@ -182,15 +178,20 @@ def table_raamatud(conn):
     tree.column("autor_nimi", anchor=CENTER)
     tree.heading("autor_nimi", text="autor_nimi") 
     tree.column("zanri_nimi", anchor=CENTER)
-    tree.heading("zanri_nimi", text="zanri_nimi") 
+    tree.heading("zanri_nimi", text="zanri_nimi")
     try:
-        read=execute_read_query(conn, "SELECT * FROM Raamatud ")
+        read = execute_read_query(conn, """
+            SELECT r.raamat_id, r.pealkiri, r.väljaandmise_kuupäev, a.autor_nimi AS autor_nimi, z.zanri_nimi AS zanri_nimi 
+            FROM Raamatud r 
+            INNER JOIN Autorid a ON r.autor_id = a.autor_id 
+            INNER JOIN Zanrid z ON r.zanr_id = z.zanr_id
+        """)
         for row in read:
             tree.insert("", END, values=row)    
     except Exception as e:
         print("Viga", f"Viga raamatu tabelis: {e}") 
     tree.pack()
-    aken_raamatud.mainloop()  
+    aken_raamatud.mainloop()
 
 def add_raamat(conn, pealkiri, väljaandmise_kuupäev, autor_nimi, zanri_nimi):
     try:
@@ -202,22 +203,70 @@ def add_raamat(conn, pealkiri, väljaandmise_kuupäev, autor_nimi, zanri_nimi):
         messagebox.showerror("Viga", f"Viga tabeli sordimisel: {e}")
 
 
+def add_raamat_aken():
+    raamat_andmed_frame = Toplevel(aken)
+    raamat_andmed_frame.title("Lisa raamat")
+    
+    Label(raamat_andmed_frame, text="Pealkiri:").grid(row=1, column=0)
+    pealkiri_entry = Entry(raamat_andmed_frame)
+    pealkiri_entry.grid(row=1, column=1)
+    
+    Label(raamat_andmed_frame, text="Väljaandmise kuupäev:").grid(row=2, column=0)
+    väljaandmise_kuupäev_entry = Entry(raamat_andmed_frame)
+    väljaandmise_kuupäev_entry.grid(row=2, column=1)
+    
+    Label(raamat_andmed_frame, text="Autor:").grid(row=3, column=0)
+    autor_andmed = execute_read_query(conn, "SELECT autor_id, autor_nimi FROM Autorid")
+    autor_ids = [row[0] for row in autor_andmed]
+    autor_names = [row[1] for row in autor_andmed]
+    valitud_autor_id = StringVar()
+    autor_id_combobox = ttk.Combobox(raamat_andmed_frame, textvariable=valitud_autor_id)
+    autor_id_combobox['values'] = autor_names
+    autor_id_combobox.grid(row=3, column=1)
+    
+    Label(raamat_andmed_frame, text="Zanr:").grid(row=4, column=0)
+    zanr_andmed = execute_read_query(conn, "SELECT zanr_id, zanri_nimi FROM Zanrid")
+    zanr_ids = [row[0] for row in zanr_andmed]
+    zanr_names = [row[1] for row in zanr_andmed]
+    valitud_zanr_id = StringVar()
+    zanr_id_combobox = ttk.Combobox(raamat_andmed_frame, textvariable=valitud_zanr_id)
+    zanr_id_combobox['values'] = zanr_names
+    zanr_id_combobox.grid(row=4, column=1)
+    def add_raamat_andmebaasi():
+        selected_autor_index = autor_names.index(autor_id_combobox.get())
+        selected_zanr_index = zanr_names.index(zanr_id_combobox.get())
+        raamat_andmed = (
+            pealkiri_entry.get(), 
+            väljaandmise_kuupäev_entry.get(), 
+            autor_ids[selected_autor_index], 
+            zanr_ids[selected_zanr_index]
+        )
+        add_raamat(conn, *raamat_andmed)
+        raamat_andmed_frame.destroy()
+    
+
+    add_btn = Button(raamat_andmed_frame, text="Lisa raamat", command=add_raamat_andmebaasi)
+    add_btn.grid(row=5, column=0, columnspan=2)
+
+
+
+
 
 def add_zanr(conn, zanri_nimi):
     try:
         cursor = conn.cursor()
         cursor.execute("INSERT INTO Zanrid (zanri_nimi) VALUES (?)", (zanri_nimi,))
         conn.commit() 
-        messagebox.showinfo("Zanr on lisatud")
+        messagebox.showinfo("Zanr on lisatud","Zanr on lisatud")
     except Exception as e:
-        messagebox.showerror("Viga", f"Viga {e}") 
+        messagebox.showerror("Viga",f"Viga {e}") 
 
 def add_autor(conn, autor_nimi ,sünnikuupäev):
     try:
         cursor = conn.cursor()
         cursor.execute("INSERT INTO Autorid(autor_nimi,sünnikuupäev) VALUES (?, ?)", (autor_nimi, sünnikuupäev))
         conn.commit() 
-        messagebox.showinfo("Autor on lisatud")
+        messagebox.showinfo("Autor on lisatud","Autor on lisatud")
     except Exception as e:
         messagebox.showerror("Viga", f"Viga {e}")
 
@@ -227,7 +276,7 @@ def delete_raamat(conn, pealkiri):
         cursor = conn.cursor()
         cursor.execute("DELETE FROM Raamatud WHERE pealkiri=?", (pealkiri,))
         conn.commit()
-        messagebox.showinfo("Pealkiri raamatud on kustutatud")
+        messagebox.showinfo("Pealkiri raamatud on kustutatud", "Pealkiri raamatud on kustutatud")
     except Exception as e:
         messagebox.showerror("Viga", f"Viga {e}")
 
@@ -235,11 +284,17 @@ def delete_raamat(conn, pealkiri):
 def delete_raamat_autorNimi(conn, autor_nimi):
     try:
         cursor = conn.cursor()
-        cursor.execute("DELETE FROM Raamatud WHERE autor_nimi=?", (autor_nimi,))
-        conn.commit()
-        messagebox.showinfo("Autor nimi raamatud on kustutatud")
+        cursor.execute("SELECT autor_id FROM Autorid WHERE autor_nimi=?", (autor_nimi,))
+        autor_id = cursor.fetchone()
+        if autor_id:
+            cursor.execute("DELETE FROM Raamatud WHERE autor_id=?", (autor_id[0],))
+            conn.commit()
+            messagebox.showinfo("Autor nimi raamatud on kustutatud", "Autor nimi raamatud on kustutatud")
+        else:
+            messagebox.showinfo("Autor ei leitud", "Autor nimega ei leitud")
     except Exception as e:
         messagebox.showerror("Viga", f"Viga {e}")
+
 
 
 def add_zanr_aken():
@@ -437,9 +492,9 @@ def dropTable(table_name, conn):
         cursor = conn.cursor()
         cursor.execute(f"DROP TABLE {table_name}")
         conn.commit()
-        messagebox.showinfo("Viga", f"Tabel {table_name} on kustutatud!")
+        messagebox.showinfo(f"Tabel {table_name} on kustutatud!")
     except Exception as e:
-        messagebox.showerror("Viga", f"Tekkis väga: {e}")
+        messagebox.showerror(f"Tekkis väga: {e}")
 
 def drop_table_aken(conn):
     drop_aken = Toplevel()
